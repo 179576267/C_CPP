@@ -1,0 +1,680 @@
+#include"link.h"
+
+/***************************
+函数功能：创建新的用户节点
+入参：用户头节点，新用户信息
+返回值:无
+****************************/
+void creat_new_user(USER_NODE * head,int id,char name[],int l,char pwd[],int w)
+{
+		USER_NODE *p=head;
+		if(p==NULL)
+			{
+				printf("error head in creat_new_user!\n");
+				exit(-1);
+			}
+		USER_NODE *newnode=(USER_NODE *) malloc (sizeof(USER_NODE));
+		assert(newnode!=NULL);
+		strcpy(newnode->user.name,name);
+		strcpy(newnode->user.pwd,pwd);
+		newnode->user.id=id;
+		newnode->user.money=0.0;
+
+		newnode->next=p->next;
+		p->next=newnode;
+}
+/**********************************
+函数功能：读取历史彩票信息
+入参：历史链头节点
+返回值:是否读取成功
+**********************************/
+void ht_read(HT_NODE  *head)
+{
+	HT_NODE  *p=head;
+	if(p==NULL)
+		{
+			printf("error head in ht_read!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/ht.txt","r+");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+
+	while(!feof(fp))
+	{
+		HT_NODE  *newnode=(HT_NODE  *) malloc (sizeof(HT_NODE));
+		fscanf(fp,"%d %s %d %d %d %d %d %d %d %f %f\n",&newnode->ht.id
+									  		,newnode->ht.name
+								    		,&newnode->ht.t_id
+								  	 		,&newnode->ht.issue
+								      		,&newnode->ht.open_num
+								      		,&newnode->ht.buy_num
+								      		,&newnode->ht.times
+								     		,&newnode->ht.open
+											,&newnode->ht.win
+								     		,&newnode->ht.money
+											,&newnode->ht.re_money);
+		newnode->next=p->next;
+		p->next=newnode;
+	}
+
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+/**********************************
+函数功能：写入历史彩票信息
+入参：历史链头节点
+返回值:是否写入成功
+**********************************/
+void ht_write(HT_NODE  *head)
+{
+	HT_NODE  *p=head;
+	if(p==NULL)
+		{
+			printf("error head in ht_write!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/ht.txt","w");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+	p=p->next;
+	while(p!=NULL)
+	{
+			if(strcmp(p->ht.name,"")==0)
+			{
+				p=p->next;
+				continue;
+			}
+		fprintf(fp,"%d %s %d %d %d %d %d %d %d %.2f %.2f\n",p->ht.id
+									  		,p->ht.name
+								    		,p->ht.t_id
+								  	 		,p->ht.issue
+								      		,p->ht.open_num
+								      		,p->ht.buy_num
+								      		,p->ht.times
+								     		,p->ht.open
+											,p->ht.win
+								     		,p->ht.money
+											,p->ht.re_money);
+		p=p->next;
+	}
+
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+
+/**********************************
+函数功能：读取彩票信息
+入参：彩票链头节点
+返回值:是否读取成功
+**********************************/
+void abt_read(ABT_NODE *head)
+{
+	ABT_NODE  *p=head;
+	if(p==NULL)
+		{
+			printf("error head in abt_read!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/abt.txt","r+");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+
+	while(!feof(fp))
+	{
+		ABT_NODE  *newnode=(ABT_NODE *) malloc (sizeof(ABT_NODE));
+		fscanf(fp,"%f %f %d %d %d\n",&newnode->abt.money
+								  	  ,&newnode->abt.p_money
+								      ,&newnode->abt.issue
+								      ,&newnode->abt.num
+								      ,&newnode->abt.open);
+		newnode->next=p->next;
+		p->next=newnode;
+	}
+
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+/**********************************
+函数功能：写入彩票信息
+入参：彩票链头节点
+返回值:是否写入成功
+**********************************/
+void abt_write(ABT_NODE *head)
+{
+	ABT_NODE  *p=head;
+	if(p==NULL)
+		{
+			printf("error head in abt_write!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/abt.txt","w");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+
+	p=p->next;
+	while(p!=NULL)
+	{
+			if(p->abt.issue==0)
+			{
+				p=p->next;
+				continue;
+			}
+		fprintf(fp,"%.2f %.2f %d %d %d\n",p->abt.money
+								  	  ,p->abt.p_money
+								      ,p->abt.issue
+								      ,p->abt.num
+								      ,p->abt.open);
+		p=p->next;
+	}
+
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+
+/**********************************
+函数功能：解密密码
+入参：用户链头节点
+返回值:无
+**********************************/
+void decode(USER_NODE *head)
+{
+	USER_NODE *p=head;
+	if(p==NULL)
+		{
+			printf("error head in user_read!\n");
+			exit(-1);
+		}
+	while(p->next!=NULL)
+		{	
+			p=p->next;
+			int len=strlen(p->user.pwd),i=0;
+			char pwd[pwd_len]={};
+			strcpy(pwd,p->user.pwd);
+			for(i=0;i<len;i++)
+				{
+					pwd[i]=pwd[i]-25-i;
+				}
+			pwd[len]='\0';
+			strcpy(p->user.pwd,pwd);
+		}
+}
+/**********************************
+函数功能：加密密码
+入参：用户链头节点
+返回值:无
+**********************************/
+void clcode(USER_NODE *head)
+{
+
+	USER_NODE *p=head;
+	if(p==NULL)
+		{
+			printf("error head in user_read!\n");
+			exit(-1);
+		}
+	while(p->next!=NULL)
+		{	
+			p=p->next;
+			int len=strlen(p->user.pwd),i=0;
+			char pwd[pwd_len]={};
+			strcpy(pwd,p->user.pwd);
+			for(i=0;i<len;i++)
+				{
+					pwd[i]=pwd[i]+25+i;
+				}
+			pwd[len]='\0';
+			strcpy(p->user.pwd,pwd);
+		}
+}
+/**********************************
+函数功能：读取用户信息
+入参：用户链头节点
+返回值:是否读取成功
+**********************************/
+void user_read(USER_NODE *head)
+{
+	USER_NODE *p=head;
+	if(p==NULL)
+		{
+			printf("error head in user_read!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/user.txt","r");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+
+	while(1)
+	{
+		if(feof(fp))
+		break;
+		USER_NODE *newnode=(USER_NODE *) malloc (sizeof(USER_NODE));
+		fscanf(fp,"%d %s %s %f\n",&newnode->user.id
+								  ,newnode->user.name
+								  ,newnode->user.pwd
+								  ,&newnode->user.money);
+		
+		newnode->next=p->next;
+		p->next=newnode;
+	
+	}
+	
+	decode(head);
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+
+
+
+/**********************************
+函数功能：写入用户信息
+入参：用户链头节点
+返回值:是否写入
+**********************************/
+void user_write(USER_NODE *head)
+{
+	USER_NODE *p=head;
+	if(p==NULL)
+		{
+			printf("error head in user_write!\n");
+			exit(-1);
+		}
+
+	clcode(p);
+
+	FILE *fp=fopen("./data/user.txt","w");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+	p=p->next;
+	while(p!=NULL)
+		{
+			if(strcmp(p->user.name,"")==0)
+			{
+				p=p->next;
+				continue;
+			}
+			
+			
+			fprintf(fp,"%d %s %s %.2f\n"
+									,p->user.id
+									,p->user.name
+									,p->user.pwd
+									,p->user.money);
+			p=p->next;
+		}
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}	
+}
+
+/**********************************
+函数功能：读取充值历史
+入参：充值链头节点
+返回值:无
+**********************************/
+void charge_read(CHARGE_NODE *head)
+{
+	CHARGE_NODE *p=head;
+	if(p==NULL)
+		{
+			printf("error head in charge_read!\n");
+			exit(-1);
+		}
+	FILE *fp=fopen("./data/charge.txt","r");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+
+	while(1)
+	{
+		if(feof(fp))
+		break;
+		CHARGE_NODE *newnode=(CHARGE_NODE *) malloc (sizeof(CHARGE_NODE));
+		fscanf(fp,"%d %s %d %d %f\n",&newnode->charge.id
+								  ,newnode->charge.name
+								  ,&newnode->charge.state
+								  ,&newnode->charge.process
+								  ,&newnode->charge.money);
+		
+		newnode->next=p->next;
+		p->next=newnode;
+	
+	}
+	
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+/**********************************
+函数功能：写入充值信息
+入参：充值链头节点
+返回值:无
+**********************************/
+int charge_write(CHARGE_NODE  *head)
+{
+	CHARGE_NODE  *p=head;
+	if(p==NULL)
+		{
+			printf("error head in charge_write!\n");
+			exit(-1);
+		}
+
+	FILE *fp=fopen("./data/charge.txt","w");
+	if(fp==NULL)
+		{
+			printf("error fopen!\n");
+			return;
+		}
+	p=p->next;
+	while(p!=NULL)
+		{
+			if(strcmp(p->charge.name,"")==0)
+			{
+				p=p->next;
+				continue;
+			}
+			
+			
+			fprintf(fp,"%d %s %d %d %.2f\n"
+									,p->charge.id
+									,p->charge.name
+									,p->charge.state
+									,p->charge.process
+									,p->charge.money);
+			p=p->next;
+		}
+	if(fclose(fp))
+		{
+			printf("error fclose!\n");
+			exit(-1);
+		}
+}
+
+/**********************************************
+函数功能：查找用户名，看是否重复，查找最大ID；
+入参：用户链头节点，姓名
+返回值：查找结果
+*************************************************/
+
+int search_name(USER_NODE *head,char name[],int l,int *q)
+{
+	USER_NODE *p=head;
+	if(p==NULL)
+	{
+		printf("error head in search_name!\n");
+		return -1;
+	}
+
+	p=p->next;
+	while(p!=NULL)
+	{
+		if(p->user.id>*q)
+			*q=p->user.id;
+		p=p->next;
+	}
+
+	p=head->next;
+	while(p!=NULL)
+	{
+		if(strcmp(name,p->user.name)==0)
+		{	return 1;}
+
+		p=p->next;
+	}
+
+	return 0;
+}
+
+
+/********************
+函数功能：注册彩民
+入参：用户链头节点
+返回值：注册情况
+********************/
+int enroll(USER_NODE* p_head)
+{
+	
+	USER_NODE *head=p_head;
+	if(head==NULL)
+		{
+			printf("error head in enroll!\n");
+			exit(-1);
+		}
+	char name[name_len]={},pwd1[pwd_len]={},pwd2[pwd_len]={};
+	int id=0;
+	int *p=&id;
+	
+	while(1)
+	{
+		while(1)
+		{
+			printf("请输入注册名(5-10位)-->");
+			scanf("%s",name);
+
+			if(strlen(name)<5||strlen(name)>10||strcmp(name,"admin")==0||strcmp(name,"ticket")==0)
+				printf("用户名不合法，请重新输入！\n");
+			else break;
+		}
+		
+		
+		int ser=search_name(p_head,name,name_len,p);
+		if(ser==1)
+		{
+			printf("用户名已存在，请重新输入!\n");
+		}
+		else if(ser==0)
+		{
+			break;
+		}
+		else 
+		{	
+			exit(-1);
+		}
+	}
+
+
+	while(1)
+	{
+		while(1)
+		{
+			printf("请输入密码(5-10位)-->");
+			scanf("%s",pwd1);
+			if(strlen(pwd1)<5||strlen(pwd1)>10)
+				printf("密码不合法!,请重新输入!\n");
+			else 
+				break;
+		}
+
+		printf("请再次输入密码-->");
+		scanf("%s",pwd2);
+		if(strcmp(pwd1,pwd2)==0)
+			{
+				head=p_head->next;
+#if 0				
+				while(head!=NULL)
+					{
+						printf("id before creat:%d\n",head->user.id);
+						head=head->next;
+					}
+#endif					
+				creat_new_user(p_head,id+1,name,name_len,pwd1,pwd_len);
+
+				head=p_head->next;
+#if 0				
+				while(head!=NULL)
+					{
+						printf("id after creat:%d\n",head->user.id);
+						head=head->next;
+					}
+#endif
+				break;
+			}
+		else
+			printf("两次密码不一致.请重新输入密码!\n");
+
+
+	}	
+
+	return 1;
+
+}
+
+/************************************
+函数功能：登录帐户
+入参：用户链头节点
+返回值：是否登录成功
+************************************/
+int sign_in(USER_NODE *p,ABT_NODE *q,HT_NODE *r,CHARGE_NODE *t)
+{	
+	int k=3,l=-1;
+	USER_NODE *user_head=p;
+//	printf("signhead=%p\n",p);
+	ABT_NODE *abt_head=q;
+	HT_NODE *ht_head=r;
+	CHARGE_NODE *charge_head=t;
+	if(user_head==NULL||abt_head==NULL||ht_head==NULL||charge_head==NULL)
+		{
+			printf("error head in sign_in\n");
+			exit(-1);
+		}
+	char name[name_len],pwd[pwd_len];
+
+	while(k)
+	{
+		user_head=p->next;
+		printf("请输入用户名-->");
+		scanf("%s",name);
+		printf("请输入用户密码-->");
+		system("stty -echo");
+		scanf("%s",pwd);
+		system("stty echo");
+		printf("********\n");
+
+
+
+		if(strcmp(name,"admin")==0&&0==strcmp(pwd,"123456"))
+			{
+				int ad=admin_sign_in(p,q,r,t);//管理员登录
+					if(ad==0)
+						return 0;
+			}
+		else if(strcmp(name,"ticket")==0&&0==strcmp(pwd,"123456"))
+			{
+				int ti=ticket_sign_in(p,q,r);//三方登录
+					if(0==ti)
+						return 0;
+			}
+
+		else
+			{
+				while(user_head!=NULL)
+					{
+					if(strcmp(user_head->user.name,name)==0&&0==strcmp(user_head->user.pwd,pwd))
+						{
+							 USER *p_user=&user_head->user;
+							 l=user_sign_in(p,abt_head,ht_head,p_user,t);//彩民登录
+						 	if(l==0)  
+								{
+									return 1;
+								}
+						}
+					else user_head=user_head->next;
+					}
+			}
+
+			
+			printf("用户名密码不正确，还有%d次机会!\n",k-1);
+			if(k==1)
+				{
+					system("clear");
+					printf("用户名或密码输错三次,欢迎下次光临\n");
+				}
+		k--;	
+	}	
+	return 0;
+}
+
+
+void all_free(USER_NODE *p,ABT_NODE *q,HT_NODE *r,CHARGE_NODE *t)
+{
+	USER_NODE *user=NULL;
+	ABT_NODE *abt=NULL;
+	HT_NODE *ht=NULL;
+	CHARGE_NODE *charge=NULL;
+
+	if(p==NULL||q==NULL||r==NULL||t==NULL)
+		{
+			printf("erorr head in free!\n");
+		}
+
+	while(p)
+		{
+			user=p;
+			p=p->next;
+			free(user);
+			user=NULL;
+		}
+	
+	while(q)
+		{
+			abt=q;
+			q=q->next;
+			free(abt);
+			abt=NULL;
+		}
+
+	while(r)
+		{
+			ht=r;
+			r=r->next;
+			free(ht);
+			ht=NULL;
+		}
+	while(t)
+		{
+			charge=t;
+			t=t->next;
+			free(charge);
+			charge=NULL;
+		}
+}
+

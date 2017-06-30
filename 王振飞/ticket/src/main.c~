@@ -1,0 +1,79 @@
+#include"fun.h"
+
+int main()
+{
+	system("clear");
+	USER_NODE *user_head=(USER_NODE *) malloc (sizeof(USER_NODE));//创建用户头链节点
+	user_head->next=NULL;
+
+	ABT_NODE *abt_head=(ABT_NODE *) malloc (sizeof(ABT_NODE));//创建彩票链头节点
+	abt_head->next=NULL;
+
+	HT_NODE *ht_head=(HT_NODE *) malloc (sizeof(HT_NODE));//创建历史记录头节点
+	ht_head->next=NULL;
+
+	CHARGE_NODE *charge_head=(CHARGE_NODE *) malloc (sizeof(CHARGE_NODE));//创建充值头节点
+	charge_head->next=NULL;
+
+	abt_read(abt_head);//读取彩票信息到彩票链
+	ht_read(ht_head);//读取历史记录到历史链
+	user_read(user_head);//读取用户信息到用户链
+	charge_read(charge_head);//读取充值历史到充值链
+#if 0
+	USER_NODE *p=user_head;
+	p=p->next;
+	while(p!=NULL)
+	{
+		printf("i=%d ",p->user.id);
+		p=p->next;
+	}
+	
+#endif
+	
+	while(1)
+	{
+		int  main_menu_chose=-1;
+		system("cat ./view/main_menu.txt");	
+		printf("请输入选项-->");
+		scanf("%d",&main_menu_chose);
+
+		switch(main_menu_chose)
+			{
+				case 0: 
+					{
+
+						user_write(user_head);
+						abt_write(abt_head);
+						ht_write(ht_head);
+						charge_write(charge_head);
+						all_free(user_head,abt_head,ht_head,charge_head);
+						return 0;
+					}
+				case 1:
+				{ 
+					sign_in(user_head,abt_head,ht_head,charge_head);   
+						break;
+				}
+				case 2:
+				{
+					int en=enroll(user_head); 
+					if(en==1)
+						{
+							system("clear");
+							printf("恭喜您注册成功！！\n");
+						}
+				break;
+				}
+				default:
+				{
+					system("clear");
+					printf("输入有误，请重新输入!\n");
+					while(getchar()!='\n');
+					break;
+				}
+
+			}
+	}
+
+}
+
