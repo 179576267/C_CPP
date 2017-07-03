@@ -23,6 +23,12 @@ void getApple(Apple* &a){
 	a->type = "asd";
 }
 
+//常引用作为参赛，其引用对象不能改变
+void myprintf(const int &a){
+	int b = 2;
+	//a = b; 不允许
+	printf("a value can not be change\n");
+}
 
 //引用 ：只要作为函数的参数的返回值
 int main(){
@@ -30,4 +36,9 @@ int main(){
 	getApple(&a);
 	cout << a->type <<","<< a->size << endl;
 	free(a);
+
+	int c = 1;
+	myprintf(c);	
+	
+	
 }
